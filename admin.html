@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Администрирование — JUNGLE</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+  /* Admin-specific overrides for full centering */
+  body { margin: 0; padding: 0; }
+
+  #admin-login-sec {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+    align-items: center;
+    justify-content: center;
+  }
+
+  #admin-dash-sec {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Dashboard header */
+  .dash-hdr {
+    background: #294340;
+    height: 60px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .dash-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: #C4A35A;
+  }
+  .dash-out {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #fff;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.35);
+    padding: 7px 18px;
+    background: transparent;
+    transition: all .25s;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .dash-out:hover { background: rgba(255,255,255,.12); }
+
+  /* Dashboard body */
+  .dash-body {
+    display: flex;
+    flex: 1;
+  }
+
+  /* Sidebar */
+  .dash-side {
+    width: 224px;
+    background: #fff;
+    border-right: 1px solid #D9D9D9;
+    padding: 28px 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .dash-nav-item {
+    padding: 14px 28px;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+    color: #666;
+  }
+  .dash-nav-item:hover { background: #E3E3DF; color: #294340; }
+  .dash-nav-item.active {
+    background: #E3E3DF;
+    color: #294340;
+    font-weight: 600;
+    border-left: 3px solid #294340;
+    padding-left: 25px;
+  }
+  .dash-nav-divider {
+    margin-top: auto;
+    border-top: 1px solid #D9D9D9;
+    padding-top: 8px;
+  }
+
+  /* Main content */
+  .dash-main {
+    flex: 1;
+    padding: 44px 48px;
+    overflow-x: auto;
+    background: #f3f3f0;
+  }
+
+  /* Sections */
+  .dsec { display: none; }
+  .dsec.active { display: block; animation: fadeIn .3s ease; }
+
+  .dsec-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    color: #294340;
+  }
+
+  /* Stats grid */
+  .dstat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .dstat {
+    background: #fff;
+    padding: 24px;
+    border-radius: 3px;
+    border-left: 3px solid #294340;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .dstat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 40px;
+    color: #294340;
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+  .dstat-lbl {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #999;
+  }
+
+  /* Table */
+  .dtable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  }
+  .dtable th {
+    background: #294340;
+    color: #fff;
+    padding: 13px 18px;
+    font-size: 8.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .dtable td {
+    padding: 13px 18px;
+    font-size: 12px;
+    border-bottom: 1px solid #D9D9D9;
+    color: #444;
+    vertical-align: middle;
+  }
+  .dtable tr:last-child td { border-bottom: none; }
+  .dtable tr:hover td { background: #f8f8f6; }
+
+  .dbadge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #e8f4e8;
+    color: #2a7a2a;
+  }
+
+  /* Form card */
+  .dform-card {
+    background: #fff;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    border-radius: 4px;
+  }
+  .dform-card h3 {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    color: #294340;
+  }
+  .dform-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .dform-group { display: flex; flex-direction: column; }
+  .dlabel {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6B9A8A;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .dinput {
+    border: 1px solid #D9D9D9;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    border-radius: 2px;
+    transition: border-color .25s;
+  }
+  .dinput:focus { border-color: #294340; }
+
+  .dbtn {
+    background: #294340;
+    color: #fff;
+    border: none;
+    padding: 11px 28px;
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .25s;
+    border-radius: 2px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .dbtn:hover { background: #6B9A8A; }
+  .dbtn-del {
+    background: #c62828;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    font-size: 8.5px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background .25s;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .dbtn-del:hover { background: #b71c1c; }
+
+  .dsec-subtitle {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: #555;
+  }
+
+  @media (max-width: 900px) {
+    .dstat-grid { grid-template-columns: repeat(2,1fr); }
+    .dform-row  { grid-template-columns: 1fr; }
+    .dash-side  { width: 180px; }
+    .dash-main  { padding: 28px 20px; }
+  }
+  @media (max-width: 640px) {
+    .dash-side  { display: none; }
+    .dash-main  { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ ADMIN LOGIN ════ -->
+<div id="admin-login-sec">
+  <div class="admin-login-card">
+    <div class="admin-login-title">JUNGLE</div>
+    <div class="admin-login-sub">Панель администратора</div>
+
+    <div class="fgroup">
+      <label class="flabel">Логин</label>
+      <input class="finput" type="text" id="al" placeholder="admin"
+        onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Пароль</label>
+      <input class="finput" type="password" id="ap" placeholder="••••••"
+        onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+
+    <button class="btn-green-wide" style="margin-top:24px" onclick="adminLogin()">ВОЙТИ</button>
+    <button class="btn-form-outline" style="margin-top:12px" onclick="location.href='index.html'">← На сайт</button>
+  </div>
+</div>
+
+<!-- ════ ADMIN DASHBOARD ════ -->
+<div id="admin-dash-sec">
+
+  <!-- Header -->
+  <div class="dash-hdr">
+    <div class="dash-brand">JUNGLE — Администрирование</div>
+    <button class="dash-out" onclick="adminLogout()">ВЫЙТИ</button>
+  </div>
+
+  <!-- Body -->
+  <div class="dash-body">
+
+    <!-- Sidebar -->
+    <div class="dash-side">
+      <div class="dash-nav-item active" id="nav-dash"     onclick="dNav('dash',this)">📊 Дашборд</div>
+      <div class="dash-nav-item"        id="nav-products" onclick="dNav('products',this)">🌸 Товары</div>
+      <div class="dash-nav-item"        id="nav-orders"   onclick="dNav('orders',this)">📦 Заказы</div>
+      <div class="dash-nav-item"        id="nav-users"    onclick="dNav('users',this)">👤 Пользователи</div>
+      <div class="dash-nav-divider">
+        <div class="dash-nav-item" onclick="location.href='index.html'">← На сайт</div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="dash-main">
+
+      <!-- DASHBOARD -->
+      <div class="dsec active" id="dsec-dash">
+        <div class="dsec-title">Дашборд</div>
+        <div class="dstat-grid" id="dstat-grid"></div>
+        <div class="dsec-subtitle">Последние заказы</div>
+        <table class="dtable">
+          <thead>
+            <tr><th>ID</th><th>Клиент</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr>
+          </thead>
+          <tbody id="ddash-orders"></tbody>
+        </table>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="dsec" id="dsec-products">
+        <div class="dsec-title">Управление товарами</div>
+        <div class="dform-card">
+          <h3>Добавить новый товар</h3>
+          <div class="dform-row">
+            <div class="dform-group"><label class="dlabel">Название</label><input class="dinput" type="text" id="an" placeholder="Букет «Название»"></div>
+            <div class="dform-group"><label class="dlabel">Состав</label><input class="dinput" type="text" id="asub" placeholder="Из роз и хризантем"></div>
+          </div>
+          <div class="dform-row">
+            <div class="dform-group"><label class="dlabel">Цена (₽)</label><input class="dinput" type="number" id="apr" placeholder="8000" min="1"></div>
+            <div class="dform-group"><label class="dlabel">Количество</label><input class="dinput" type="text" id="aqty" placeholder="55 шт."></div>
+          </div>
+          <div class="dform-row">
+            <div class="dform-group">
+              <label class="dlabel">Категория</label>
+              <select class="dinput" id="acat">
+                <option>Букеты</option><option>Горшечные растения</option><option>Искусственные растения</option>
+                <option>Сухоцветы</option><option>Деревянные изделия</option><option>Вазы из стекла</option>
+                <option>Садовые фигуры</option><option>Композиции из живых цветов</option><option>Денежные коробки</option>
+                <option>Мягкие игрушки</option><option>Кашпо</option><option>Вазы из керамики</option>
+                <option>Уход за растениями</option><option>Гипсофила</option><option>Подарочные пакеты</option>
+                <option>Открытки размером А5</option><option>Конверты для денег</option><option>Топеры</option>
+                <option>Плетёные изделия</option><option>Открытки размером А4</option>
+                <option>Ритуальные товары</option><option>Шары</option>
+              </select>
+            </div>
+            <div class="dform-group"><label class="dlabel">Фото (имя файла)</label><input class="dinput" type="text" id="aimg" placeholder="photo_1.jpg"></div>
+          </div>
+          <button class="dbtn" onclick="addProdAdmin()">+ ДОБАВИТЬ ТОВАР</button>
+        </div>
+
+        <div class="dsec-subtitle">Список товаров</div>
+        <table class="dtable">
+          <thead><tr><th>ID</th><th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th>Кол-во</th><th></th></tr></thead>
+          <tbody id="dprods-body"></tbody>
+        </table>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="dsec" id="dsec-orders">
+        <div class="dsec-title">Заказы</div>
+        <table class="dtable">
+          <thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Адрес</th><th>Состав</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead>
+          <tbody id="dorders-body"></tbody>
+        </table>
+      </div>
+
+      <!-- USERS -->
+      <div class="dsec" id="dsec-users">
+        <div class="dsec-title">Пользователи</div>
+        <table class="dtable">
+          <thead><tr><th>ID</th><th>Имя</th><th>Фамилия</th><th>Телефон</th><th>Заказов</th><th>Регистрация</th></tr></thead>
+          <tbody id="dusers-body"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /dash-main -->
+  </div><!-- /dash-body -->
+</div><!-- /admin-dash-sec -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Admin nav — use dashboard-specific functions
+function dNav(sec, el) {
+  document.querySelectorAll('.dash-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.dsec').forEach(s => s.classList.remove('active'));
+  document.getElementById('dsec-' + sec)?.classList.add('active');
+
+  if (sec === 'dash')     renderDash();
+  if (sec === 'products') renderDProds();
+  if (sec === 'orders')   renderDOrders();
+  if (sec === 'users')    renderDUsers();
+}
+
+// Override adminLogin to use new IDs
+function adminLogin() {
+  const l = document.getElementById('al')?.value;
+  const p = document.getElementById('ap')?.value;
+  if (l === 'admin' && p === 'admin') {
+    document.getElementById('admin-login-sec').style.display = 'none';
+    document.getElementById('admin-dash-sec').style.display  = 'flex';
+    renderDash();
+  } else {
+    toast('Неверный логин или пароль');
+  }
+}
+
+function adminLogout() {
+  document.getElementById('admin-login-sec').style.display = 'flex';
+  document.getElementById('admin-dash-sec').style.display  = 'none';
+  document.getElementById('al').value = '';
+  document.getElementById('ap').value = '';
+}
+
+function fmt(n) { return Number(n).toLocaleString('ru') + ' ₽'; }
+
+function renderDash() {
+  const p = DB.prods(), o = DB.orders(), u = DB.users();
+  const rev = o.reduce((s,x) => s + (x.total||0), 0);
+  document.getElementById('dstat-grid').innerHTML = `
+    <div class="dstat"><div class="dstat-val">${p.length}</div><div class="dstat-lbl">Товаров</div></div>
+    <div class="dstat"><div class="dstat-val">${o.length}</div><div class="dstat-lbl">Заказов</div></div>
+    <div class="dstat"><div class="dstat-val">${u.length}</div><div class="dstat-lbl">Клиентов</div></div>
+    <div class="dstat"><div class="dstat-val">${rev.toLocaleString('ru')} ₽</div><div class="dstat-lbl">Выручка</div></div>`;
+  document.getElementById('ddash-orders').innerHTML =
+    [...o].reverse().slice(0,6).map(x =>
+      `<tr><td>#${String(x.id).slice(-6)}</td><td>${x.name}</td><td>${fmt(x.total)}</td>
+       <td><span class="dbadge">${x.status}</span></td><td>${x.date}</td></tr>`
+    ).join('') || '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:24px">Заказов пока нет</td></tr>';
+}
+
+function renderDProds() {
+  document.getElementById('dprods-body').innerHTML =
+    DB.prods().map(p => `
+      <tr>
+        <td>${p.id}</td>
+        <td><img src="${p.img}" style="width:46px;height:46px;object-fit:cover;border-radius:2px" onerror="this.style.background='#ddd'"></td>
+        <td>${p.name}</td>
+        <td>${p.cat}</td>
+        <td>${fmt(p.price)}</td>
+        <td>${p.qty||'—'}</td>
+        <td><button class="dbtn-del" onclick="delProdAdmin(${p.id})">Удалить</button></td>
+      </tr>`).join('') ||
+    '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:24px">Нет товаров</td></tr>';
+}
+
+function addProdAdmin() {
+  const name  = document.getElementById('an')?.value.trim();
+  const price = parseInt(document.getElementById('apr')?.value);
+  if (!name || !price) { alert('Введите название и цену'); return; }
+  const prods = DB.prods();
+  const id    = prods.length ? Math.max(...prods.map(x=>x.id)) + 1 : 1;
+  prods.push({
+    id, name,
+    sub:   document.getElementById('asub')?.value.trim()||'',
+    price, qty: document.getElementById('aqty')?.value.trim()||'',
+    cat:   document.getElementById('acat')?.value||'Букеты',
+    img:   document.getElementById('aimg')?.value.trim()||'f2.png',
+  });
+  DB.setProds(prods);
+  renderDProds();
+  ['an','asub','apr','aqty','aimg'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  toast('✓ Товар добавлен!');
+}
+
+function delProdAdmin(id) {
+  if (!confirm('Удалить этот товар?')) return;
+  DB.setProds(DB.prods().filter(p => p.id !== id));
+  renderDProds();
+  toast('Товар удалён');
+}
+
+function renderDOrders() {
+  document.getElementById('dorders-body').innerHTML =
+    [...DB.orders()].reverse().map(o => `
+      <tr>
+        <td>#${String(o.id).slice(-6)}</td>
+        <td>${o.name}</td>
+        <td>${o.phone||'—'}</td>
+        <td>${o.addr||'—'}</td>
+        <td style="max-width:180px;font-size:10.5px;word-break:break-word">${o.items}</td>
+        <td>${fmt(o.total)}</td>
+        <td><span class="dbadge">${o.status}</span></td>
+        <td>${o.date}</td>
+      </tr>`).join('') ||
+    '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:24px">Заказов пока нет</td></tr>';
+}
+
+function renderDUsers() {
+  const orders = DB.orders();
+  document.getElementById('dusers-body').innerHTML =
+    DB.users().map(u => `
+      <tr>
+        <td>#${String(u.id).slice(-6)}</td>
+        <td>${u.name}</td>
+        <td>${u.sur||'—'}</td>
+        <td>${u.phone}</td>
+        <td>${orders.filter(o=>o.uid===u.id).length}</td>
+        <td>${u.reg}</td>
+      </tr>`).join('') ||
+    '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:24px">Пользователей нет</td></tr>';
+}
+</script>
+<script src="app.js"></script>
+</body>
+</html>

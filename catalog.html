@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Каталог — JUNGLE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header" id="hdr">
+  <a class="logo" href="index.html">
+    <img src="logo.png" alt="JUNGLE" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <span class="logo-svg" style="display:none">JUNGLE</span>
+  </a>
+  <nav class="nav">
+    <a href="catalog.html">Каталог</a>
+    <a href="about.html">О нас</a>
+    <a href="contacts.html">Контакты</a>
+    <a href="shipping.html">Оплата и доставка</a>
+  </nav>
+  <div class="hright">
+    <span class="login-link" id="login-link" onclick="goLogin()">Войти в кабинет</span>
+    <div class="cart-btn" id="cart-btn" onclick="location.href='cart.html'">
+      <svg class="cart-icon" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 4H5.2L7.5 18H21.5L24.5 8H9.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="11" cy="22.5" r="2" fill="#294340" stroke="none"/>
+        <circle cx="20" cy="22.5" r="2" fill="#294340" stroke="none"/>
+      </svg>
+      <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+    <div class="burger" id="burger" onclick="toggleBurger()"><span></span><span></span><span></span></div>
+  </div>
+</header>
+<nav class="mnav" id="mnav">
+  <a href="catalog.html">Каталог</a>
+  <a href="about.html">О нас</a>
+  <a href="contacts.html">Контакты</a>
+  <a href="shipping.html">Оплата и доставка</a>
+  <a onclick="goLogin()">Войти в кабинет</a>
+</nav>
+
+<!-- МОБИЛЬНАЯ КНОПКА ФИЛЬТРА -->
+<div class="mob-filter-toggle" id="mob-filter-toggle" onclick="toggleMobFilter()">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="1" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="1" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="5" cy="4" r="2" fill="white" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="11" cy="8" r="2" fill="white" stroke="currentColor" stroke-width="1.5"/>
+    <circle cx="5" cy="12" r="2" fill="white" stroke="currentColor" stroke-width="1.5"/>
+  </svg>
+  ФИЛЬТР
+  <span class="mob-filter-count" id="mob-filter-count"></span>
+</div>
+
+<!-- МОБИЛЬНАЯ ПАНЕЛЬ ФИЛЬТРА (выезжает снизу) -->
+<div class="mob-filter-overlay" id="mob-filter-overlay" onclick="closeMobFilter()"></div>
+<div class="mob-filter-drawer" id="mob-filter-drawer">
+  <div class="mob-filter-header">
+    <span class="mob-filter-title">ФИЛЬТР</span>
+    <div class="mob-filter-actions">
+      <button class="mob-filter-reset" onclick="resetFilters()">СБРОСИТЬ</button>
+      <button class="mob-filter-apply" onclick="closeMobFilter()">ПРИМЕНИТЬ</button>
+    </div>
+  </div>
+  <div class="mob-filter-body" id="mob-filter-list"></div>
+</div>
+
+<!-- ОСНОВНОЙ LAYOUT -->
+<div class="catalog-wrap">
+  <aside class="filter-box" id="filter-box">
+    <div class="filter-title">ФИЛЬТР</div>
+    <div id="filter-list"></div>
+    <button class="filter-reset-btn" onclick="resetFilters()">СБРОСИТЬ ВСЕ</button>
+  </aside>
+  <main>
+    <div class="catalog-grid" id="cat-grid"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+initCatalog();
+
+function toggleMobFilter() {
+  document.getElementById('mob-filter-drawer').classList.toggle('open');
+  document.getElementById('mob-filter-overlay').classList.toggle('open');
+  document.body.style.overflow = document.getElementById('mob-filter-drawer').classList.contains('open') ? 'hidden' : '';
+}
+
+function closeMobFilter() {
+  document.getElementById('mob-filter-drawer').classList.remove('open');
+  document.getElementById('mob-filter-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function resetFilters() {
+  _af = new Set();
+  renderFilters();
+  renderGrid();
+  updateFilterCount();
+}
+
+function updateFilterCount() {
+  const el = document.getElementById('mob-filter-count');
+  if (el) el.textContent = _af.size > 0 ? _af.size : '';
+}
+
+// Override toggleF to also update mobile filter
+const _origToggleF = toggleF;
+window.toggleF = function(c) {
+  _origToggleF(c);
+  // sync both desktop and mobile checkboxes
+  renderFilters();
+  updateFilterCount();
+};
+</script>
+</body>
+</html>
